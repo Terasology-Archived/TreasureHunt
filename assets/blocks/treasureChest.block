@@ -1,0 +1,17 @@
+{
+    "basedOn": "core:wood",
+    "attachmentAllowed": false,
+    // Graphics
+    "tiles": {
+        "sides": "treasureChestSides",
+        "front": "treasureChestFront",
+        "topBottom": "treasureChestTopBottom"
+    },
+    "entity": {
+        "prefab": "TreasureHunt:treasureChest"
+    },
+    "inventory": {
+        "stackable": false,
+        "directPickup": true
+    }
+}

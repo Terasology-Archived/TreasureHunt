@@ -1,0 +1,18 @@
+{
+  "parent" : "engine:iconItem",
+  "Item" : {
+    "icon" : "engine:items#brownBook",
+    "usage" : "NONE"
+  },
+  "DisplayName" : {
+    "name" : "Hint Book"
+  },
+  "Book" : {
+    "tint" : [0, 0, 255, 255],
+    "title" : "Book of Wonders"
+  },
+  "InteractionTarget": {},
+  "InteractionScreen": {
+    "screen": "Books:BookScreen"
+  }
+}
