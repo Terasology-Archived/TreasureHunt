@@ -6,5 +6,5 @@ This module aims to create a treasure hunt for the player inside Terasology. As 
 - The OnPlayerSpawnedEvent method can and will be replaced by a more appropriate one
 - Code reformating will be done in order to access player & chest locations more easily
 - General code optimization and improvement, because as of now I use a "trick" to achieve what I want to do (it works, but is ugly)
-- Will had a thread/sheduled task to refresh player location because ATM it's only loaded once
+- Will add a thread/scheduled task to refresh player location because ATM it's only loaded once
 - Will add riddles instead of simple Player location and Chest Location
