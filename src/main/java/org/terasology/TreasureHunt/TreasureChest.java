@@ -16,6 +16,7 @@ import org.terasology.logic.location.LocationComponent;
 import java.util.ArrayList;
 
 
+
 class TreasureChest extends BaseComponentSystem {
 
     private Vector3i treasureChestPos;
@@ -47,11 +48,6 @@ class TreasureChest extends BaseComponentSystem {
         placeTreasureChest(eTreasureChest, player, treasureChestPos.x, treasureChestPos.y, treasureChestPos.z);
     }
 
-    public void setTreasureChestPosition(int x, int y, int z) {
-        this.treasureChestPos.x = x;
-        this.treasureChestPos.y = y;
-        this.treasureChestPos.z = z;
-    }
 
     public Vector3i getTreasureChestPosition() {
         return this.treasureChestPos;
