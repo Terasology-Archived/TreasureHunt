@@ -44,8 +44,13 @@ class TreasureChest extends BaseComponentSystem {
         // Add Chest to inventory, because it will spawn it later
         inventoryManager.giveItem(player, EntityRef.NULL, eTreasureChest);
 
-        //Place treasure chest
         placeTreasureChest(eTreasureChest, player, treasureChestPos.x, treasureChestPos.y, treasureChestPos.z);
+    }
+
+    public void setTreasureChestPosition(int x, int y, int z) {
+        this.treasureChestPos.x = x;
+        this.treasureChestPos.y = y;
+        this.treasureChestPos.z = z;
     }
 
     public Vector3i getTreasureChestPosition() {
