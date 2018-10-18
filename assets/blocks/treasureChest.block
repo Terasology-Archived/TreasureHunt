@@ -13,5 +13,6 @@
     "inventory": {
         "stackable": false,
         "directPickup": true
-    }
+    },
+    "hardness" : 0
 }

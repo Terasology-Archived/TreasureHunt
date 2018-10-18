@@ -16,7 +16,6 @@ import org.terasology.logic.location.LocationComponent;
 import java.util.ArrayList;
 
 
-
 class TreasureChest extends BaseComponentSystem {
 
     private Vector3i treasureChestPos;
@@ -26,13 +25,13 @@ class TreasureChest extends BaseComponentSystem {
     private WorldProvider worldProvider;
     private LocalPlayer localPlayer;
 
-    TreasureChest(EntityRef player, int x, int y, int z, BlockManager bm, InventoryManager im, EntityManager em, WorldProvider wp, LocalPlayer lp) {
+    TreasureChest(EntityRef player, Vector3i vec, BlockManager bm, InventoryManager im, EntityManager em, WorldProvider wp, LocalPlayer lp) {
         this.blockManager = bm;
         this.inventoryManager = im;
         this.entityManager = em;
         this.worldProvider = wp;
         this.localPlayer = lp;
-        this.treasureChestPos = new Vector3i(x, y, z);
+        this.treasureChestPos = vec;
 
         BlockItemFactory blockFactory = new BlockItemFactory(entityManager);
 
@@ -48,6 +47,11 @@ class TreasureChest extends BaseComponentSystem {
         placeTreasureChest(eTreasureChest, player, treasureChestPos.x, treasureChestPos.y, treasureChestPos.z);
     }
 
+    public void setTreasureChestPosition(int x, int y, int z) {
+        this.treasureChestPos.x = x;
+        this.treasureChestPos.y = y;
+        this.treasureChestPos.z = z;
+    }
 
     public Vector3i getTreasureChestPosition() {
         return this.treasureChestPos;
@@ -77,25 +81,30 @@ class TreasureChest extends BaseComponentSystem {
 
     /**
      * Place a block of bricks (it doesn't matter what kind - just that is attachable) in players view.
+     * It also empty the space before that block so that the player can activate the chest (fills it with air).
      * @param playerLocation Location of player.
      * @param x relative x coordinate of the block.
      * @param y  relative y coordinate of the block.
      * @param z relative z coordinate of the block.
      * @return List with index 0 - Location of block, and 1 - Block which was located before insertion.
      */
-    private ArrayList<Object> placeBlockRelativeToPlayer(Vector3i playerLocation, int x, int y, int z) {
-        Block bTreasureChest = blockManager.getBlock("core:Brick");
-        Vector3i vBlockLocation = playerLocation.add( x, y, z);  // relative to player
-        Block previousBlockOnThisPos = worldProvider.getBlock(vBlockLocation);
-        worldProvider.setBlock(vBlockLocation, bTreasureChest);  // set the attachable block
+    private ArrayList<Object> placeBlockRelativeToPlayer(Vector3i pLoc, int x, int y, int z) {
         ArrayList<Object> list = new ArrayList<Object>();
-        list.add(vBlockLocation);
-        list.add(previousBlockOnThisPos);
+        for(int l=z; l>=0; l--) {
+            Block fakeBlock = blockManager.getBlock("engine:air");
+            if (l == z)
+                fakeBlock = blockManager.getBlock("core:Brick");
+            Vector3i vBlockLocation = new Vector3i(pLoc.x + x, pLoc.y + y, pLoc.z + l);
+            Block previousBlockOnThisPos = worldProvider.getBlock(vBlockLocation);
+            worldProvider.setBlock(vBlockLocation, fakeBlock);
+            list.add(vBlockLocation);
+            list.add(previousBlockOnThisPos);
+        }
         return list;
     }
 
     /**
-     * Places the Treasure chest in the world.
+     * Places the Treasure chest in the world. Nasty hack for activating items, so change it if u can :D
      * @param chest Chest EntityRef.
      * @param player Player.
      * @param x X coordination of the chest.
@@ -114,6 +123,9 @@ class TreasureChest extends BaseComponentSystem {
         ArrayList<Object> list = placeBlockRelativeToPlayer(newPlayerLocation, 0, 1, 3);
         localPlayer.activateOwnedEntityAsClient(chest);  // Activate chest
         worldProvider.setBlock((Vector3i)list.get(0), (Block)list.get(1));  // set Changed block to the same as before
+        // we skip 2 and 3 because this block is newly created treasure chest...
+        worldProvider.setBlock((Vector3i)list.get(4), (Block)list.get(5));  // set Changed block to the same as before
+        worldProvider.setBlock((Vector3i)list.get(6), (Block)list.get(7));  // set Changed block to the same as before
         // Move the player back in initial position.
         teleportPlayerToLocation(player, initialPlayerLocation.x, initialPlayerLocation.y, initialPlayerLocation.z);
     }
