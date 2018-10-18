@@ -54,8 +54,8 @@
     },
     "RetainBlockInventory": {},
     "PlaySoundAction": {
-        "sounds": "engine:click"
-    },
+       "sounds": "none"
+   },
     "InteractionTarget": {},
     "InteractionScreen": {
         "screen": "core:containerScreen"

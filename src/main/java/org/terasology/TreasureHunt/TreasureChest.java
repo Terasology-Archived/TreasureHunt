@@ -1,19 +1,13 @@
-
 package org.terasology.TreasureHunt;
 
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.players.LocalPlayer;
-import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
@@ -21,24 +15,25 @@ import org.terasology.world.block.items.BlockItemFactory;
 import org.terasology.logic.location.LocationComponent;
 import java.util.ArrayList;
 
-@RegisterSystem(RegisterMode.AUTHORITY)
-public class TreasureChest extends BaseComponentSystem {
-    @In
-    BlockManager blockManager;
-    @In
-    InventoryManager inventoryManager;
-    @In
-    EntityManager entityManager;
-    @In
-    WorldProvider WorldProvider;
-    @In
-    LocalPlayer localPlayer;
 
+class TreasureChest extends BaseComponentSystem {
 
-    @ReceiveEvent(components = InventoryComponent.class)
-    public void onPlayerSpawnedEvent(OnPlayerSpawnedEvent event, EntityRef player) {
+    private Vector3i treasureChestPos;
+    private BlockManager blockManager;
+    private InventoryManager inventoryManager;
+    private EntityManager entityManager;
+    private WorldProvider worldProvider;
+    private LocalPlayer localPlayer;
+
+    TreasureChest(EntityRef player, int x, int y, int z, BlockManager bm, InventoryManager im, EntityManager em, WorldProvider wp, LocalPlayer lp) {
+        this.blockManager = bm;
+        this.inventoryManager = im;
+        this.entityManager = em;
+        this.worldProvider = wp;
+        this.localPlayer = lp;
+        this.treasureChestPos = new Vector3i(x, y, z);
+
         BlockItemFactory blockFactory = new BlockItemFactory(entityManager);
-        Vector3i playerLocation = getPlayerLocation(player);
 
         EntityRef eTreasureChest = configureTreasureChest(blockFactory);
         EntityRef innerChest = configureInnerChest(blockFactory);
@@ -49,9 +44,12 @@ public class TreasureChest extends BaseComponentSystem {
         // Add Chest to inventory, because it will spawn it later
         inventoryManager.giveItem(player, EntityRef.NULL, eTreasureChest);
 
-        ///################# HERE YOU PLACE CHEST IN THE WORLD ########################
-        placeTreasureChest(eTreasureChest, player, 1, playerLocation.y, 4);  // x, y, z -> chest location
+        //Place treasure chest
+        placeTreasureChest(eTreasureChest, player, treasureChestPos.x, treasureChestPos.y, treasureChestPos.z);
+    }
 
+    public Vector3i getTreasureChestPosition() {
+        return this.treasureChestPos;
     }
 
     /**
@@ -87,8 +85,8 @@ public class TreasureChest extends BaseComponentSystem {
     private ArrayList<Object> placeBlockRelativeToPlayer(Vector3i playerLocation, int x, int y, int z) {
         Block bTreasureChest = blockManager.getBlock("core:Brick");
         Vector3i vBlockLocation = playerLocation.add( x, y, z);  // relative to player
-        Block previousBlockOnThisPos = WorldProvider.getBlock(vBlockLocation);
-        WorldProvider.setBlock(vBlockLocation, bTreasureChest);  // set the attachable block
+        Block previousBlockOnThisPos = worldProvider.getBlock(vBlockLocation);
+        worldProvider.setBlock(vBlockLocation, bTreasureChest);  // set the attachable block
         ArrayList<Object> list = new ArrayList<Object>();
         list.add(vBlockLocation);
         list.add(previousBlockOnThisPos);
@@ -114,7 +112,7 @@ public class TreasureChest extends BaseComponentSystem {
         // Here we create attachable block, mentioned in previous comment.
         ArrayList<Object> list = placeBlockRelativeToPlayer(newPlayerLocation, 0, 1, 3);
         localPlayer.activateOwnedEntityAsClient(chest);  // Activate chest
-        WorldProvider.setBlock((Vector3i)list.get(0), (Block)list.get(1));  // set Changed block to the same as before
+        worldProvider.setBlock((Vector3i)list.get(0), (Block)list.get(1));  // set Changed block to the same as before
         // Move the player back in initial position.
         teleportPlayerToLocation(player, initialPlayerLocation.x, initialPlayerLocation.y, initialPlayerLocation.z);
     }
